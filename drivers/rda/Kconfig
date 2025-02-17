@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-2.0-only
+#
+# RDA subsystem configuration
+#
+
+menuconfig RDA_SUPPORT
+	tristate "RDA support"
+	depends on ARCH_RDA
+	help
+		This selects support various RDA devices
+		
+config MACH_RDA8810
+	depends on RDA_SUPPORT
+	depends on ARCH_RDA
+	bool "RDA8810 based mach"
+	default y
+	help
+	  RDA8810 based Board
+
+config MMC_RDA
+	depends on RDA_SUPPORT
+	depends on ARCH_RDA
+	tristate "RDA SD/SDIO/eMMC Interface support"
+	help
+	This selects the RDA SD/SDIO/eMMC Interface.
+	  If no scatter/gather DMA, MMC_BLOCK_BOUNCE would be selected.
+	  say Y or M here.
+	  If unsure, say N.
+	  
+config CLK_RDA
+	depends on RDA_SUPPORT
+	depends on ARCH_RDA
+	bool "RDA clock"
+	help
+	  RDA clock tree
+	  
+source "drivers/rda/net/Kconfig"
+
+config VIDEO_RDA
+	tristate "RDA Camera Interface driver"
+	depends on RDA_SUPPORT
+	depends on ARCH_RDA
+	depends on VIDEO_DEV 
+	select VIDEOBUF2_DMA_CONTIG
+	help
+	  This is a v4l2 driver for the RDA Camera Interface
