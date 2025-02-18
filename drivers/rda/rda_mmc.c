@@ -975,7 +975,10 @@ static void rda_mmc_set_ios(struct mmc_host *mmc, struct mmc_ios *ios)
 
 		case MMC_POWER_UP:
 			if (host->mmc_pm == MMC_POWER_OFF && host->id == 0) {
-				regulator_enable(host->host_reg);
+				int ret = regulator_enable(host->host_reg);
+				if (ret) {
+					dev_err(mmc_dev(host->mmc), "Failed to enable host_reg: %d\n", ret);
+				}
 			}
 			host->mmc_pm = MMC_POWER_UP;
 			break;
