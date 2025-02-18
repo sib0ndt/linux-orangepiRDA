@@ -290,7 +290,6 @@ static void rda_gpio_irq_handler(struct irq_desc *desc)
 	struct irq_chip *ic = irq_desc_get_chip(desc);
 	struct rda_gpio_chip *rda_chip = irq_desc_get_handler_data(desc);
 	u32 n;
-	int gpio_irq;
 	unsigned long status;
 	
 	chained_irq_enter(ic, desc);
