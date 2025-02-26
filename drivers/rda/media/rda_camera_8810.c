@@ -1126,7 +1126,9 @@ static const struct v4l2_file_operations rda_fops = {
 
 
 
-static int rda_graph_notify_bound(struct v4l2_async_notifier *notifier, struct v4l2_subdev *subdev, struct v4l2_async_subdev *asd)
+int rda_graph_notify_bound(struct v4l2_async_notifier *notifier,
+	struct v4l2_subdev *subdev,
+	struct v4l2_async_connection *asc)
 {
 	struct rda_camera_dev *rcam = container_of(notifier, struct rda_camera_dev, notifier);
 
@@ -1137,7 +1139,9 @@ static int rda_graph_notify_bound(struct v4l2_async_notifier *notifier, struct v
 	return 0;
 }
 
-static void rda_graph_notify_unbind(struct v4l2_async_notifier *notifier,  struct v4l2_subdev *sd, struct v4l2_async_subdev *asd)
+void rda_graph_notify_unbind(struct v4l2_async_notifier *notifier,
+	struct v4l2_subdev *subdev,
+	struct v4l2_async_connection *asc)
 {
 	
 	struct rda_camera_dev *rcam = container_of(notifier, struct rda_camera_dev, notifier);
@@ -1365,8 +1369,8 @@ static int rda_graph_notify_complete(struct v4l2_async_notifier *notifier)
 }
 
 static const struct v4l2_async_notifier_operations rda_graph_notify_ops = {
-	.bound = rda_graph_notify_bound,
-	.unbind = rda_graph_notify_unbind,
+    .bound = rda_graph_notify_bound,
+    .unbind = rda_graph_notify_unbind,
 	.complete = rda_graph_notify_complete,
 };
 
@@ -1430,7 +1434,7 @@ static int rda_camera_probe(struct platform_device *pdev)
 	struct clk *pclk;
 	struct resource *regs;
 	struct vb2_queue *q;
-	struct v4l2_async_subdev *asd;
+	struct v4l2_async_connection *asd;
 	struct device_node *ep;
 	int ret;
 	
@@ -1549,16 +1553,16 @@ static int rda_camera_probe(struct platform_device *pdev)
 	ep = of_graph_get_next_endpoint(pdev->dev.of_node, NULL);
 	if (!ep) return -EINVAL;
 
-	v4l2_async_nf_init(&rcam->notifier);
+	v4l2_async_nf_init(&rcam->notifier, &rcam->v4l2_dev);
 
-	asd = v4l2_async_nf_add_fwnode_remote(&rcam->notifier,  of_fwnode_handle(ep), struct v4l2_async_subdev);
+	asd = v4l2_async_nf_add_fwnode_remote(&rcam->notifier,  of_fwnode_handle(ep), struct v4l2_async_connection);
 	of_node_put(ep);
 
 	if (IS_ERR(asd)) return PTR_ERR(asd);
 
 	rcam->notifier.ops = &rda_graph_notify_ops;
 
-	ret = v4l2_async_nf_register(&rcam->v4l2_dev, &rcam->notifier);
+	ret = v4l2_async_nf_register(&rcam->notifier);
 	
 	if (ret < 0)
 	{
